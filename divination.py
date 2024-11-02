@@ -7,10 +7,42 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
+from datetime import datetime
 import time
+
+def parse_time(time_str: str) -> tuple:
+    """
+    解析时间字符串
+    
+    Args:
+        time_str: 时间字符串，支持以下格式：
+                 - HH:MM (例如: 06:45)
+                 - YYYY-MM-DD-HH:MM (例如: 2024-12-02-06:45)
+    
+    Returns:
+        tuple: (日期字符串, 时间字符串)
+    """
+    try:
+        # 尝试解析完整日期时间格式
+        if '-' in time_str:
+            dt = datetime.strptime(time_str, '%Y-%m-%d-%H:%M')
+            return (
+                f"{dt.year}年{dt.month}月{dt.day}日",
+                f"{dt.hour:02d}:{dt.minute:02d}"
+            )
+        # 只有时间的情况
+        else:
+            hour, minute = map(int, time_str.split(':'))
+            return ("2024年11月2日", f"{hour:02d}:{minute:02d}")
+    except ValueError as e:
+        raise ValueError("时间格式错误，请使用 HH:MM 或 YYYY-MM-DD-HH:MM 格式")
 
 def get_shi_index(time_str: str) -> int:
     """计算时辰索引"""
+    # 如果是完整日期时间，只取时间部分
+    if '-' in time_str:
+        time_str = time_str.split('-')[-1]
+    
     hour, minute = map(int, time_str.split(':'))
     
     if hour >= 23 or hour < 1:
@@ -28,11 +60,14 @@ def build_url(number: str, time_str: str) -> str:
     base_url = "http://demo1.w258.cn/2024/xlr/#/pages/pan/pana"
     shi = get_shi_index(time_str)
     
+    # 解析日期和时间
+    ydate, ytime = parse_time(time_str)
+    
     params = {
         "ri": str(number),
         "shi": str(shi),
-        "ydate": "2024年11月2日",
-        "ytime": time_str,
+        "ydate": ydate,
+        "ytime": ytime,
         "lyear": "甲辰",
         "lmonth": "甲戌",
         "lday": "庚午",
@@ -173,8 +208,14 @@ def handle_event(event):
     """
     try:
         # 解析用户输入
-        # 假设用户输入格式为: "数字 时间"，例如 "1234 05:45"
-        number, time_str = event['content'].strip().split()
+        # 支持两种格式:
+        # 1. "数字 HH:MM" (例如: "1234 05:45")
+        # 2. "数字 YYYY-MM-DD-HH:MM" (例如: "1234 2024-12-02-06:45")
+        parts = event['content'].strip().split()
+        if len(parts) != 2:
+            raise ValueError("输入格式错误")
+            
+        number, time_str = parts
         
         # 调用占卜函数
         result = liuren_divination(number, time_str)
@@ -185,15 +226,18 @@ def handle_event(event):
         return {
             "code": 400,
             "data": None,
-            "message": f"输入格式错误，请使用正确的格式：数字 时间（例如：1234 05:45）"
+            "message": f"输入格式错误，请使用以下格式之一：\n1. 数字 HH:MM（例如：1234 05:45）\n2. 数字 YYYY-MM-DD-HH:MM（例如：1234 2024-12-02-06:45）"
         }
 
 if __name__ == "__main__":
-    # 测试扣子插件
-    test_event = {
-        "content": "1234 05:45"
-    }
+    # 测试用例
+    test_cases = [
+        {"content": "1234 05:45"},  # 只有时间
+        {"content": "1234 2024-12-02-06:45"}  # 完整日期时间
+    ]
     
-    result = handle_event(test_event)
-    print("扣子插件测试结果:")
-    print(result)
+    print("=== 测试结果 ===")
+    for test_event in test_cases:
+        print(f"\n测试输入: {test_event['content']}")
+        result = handle_event(test_event)
+        print("结果:", result)
