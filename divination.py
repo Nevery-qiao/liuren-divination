@@ -160,30 +160,31 @@ def get_gong_info(url: str) -> dict:
 def liuren_divination(number: str, time_str: str) -> dict:
     """
     六壬神课占卜函数 - 扣子插件接口
-    
-    Args:
-        number: 用户输入的数字
-        time_str: 时间字符串 (格式: "HH:MM")
-    
-    Returns:
-        dict: 包含占卜结果的字典
     """
     try:
-        # 生成URL
         url = build_url(number, time_str)
-        
-        # 获取解析结果
         result = get_gong_info(url)
         
-        # 格式化返回数据
+        gong_list = []
+        for gong in result['gong_positions']:
+            gong_list.append({
+                "position": gong['宫位'],
+                "god": gong['六神'],
+                "relation": gong['六亲'],
+                "star": gong['星'],
+                "branch": gong['支'],
+                "number": gong['数字'],
+                "is_time_palace": 1 if gong['时宫'] else 0  # 使用 1/0 代替 true/false
+            })
+        
         return {
             "code": 200,
             "data": {
-                "阳历": result['time_yangli'],
-                "阴历": result['time_nongli'][0]['time_nongli'],
-                "数字": result['time_nongli'][1]['number'],
-                "宫位": result['gong_positions'],
-                "链接": result['url']
+                "yangli_time": result['time_yangli'],
+                "nongli_time": result['time_nongli'][0]['time_nongli'],
+                "divination_number": result['time_nongli'][1]['number'],
+                "gong_info": gong_list,
+                "source_url": result['url']
             },
             "message": "占卜成功"
         }
