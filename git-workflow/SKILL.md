@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Helps manage cross-computer Git workflows between multiple development environments (e.g., work and home computers). Use this skill when the user needs to sync code with GitHub, push changes before leaving, pull updates before starting work, or set up a new project repository. Keywords that trigger this skill include "push", "pull", "sync", "下班" (leaving work), "上班" (starting work), "commit", "GitHub同步" (GitHub sync).
+description: Helps manage cross-computer Git workflows between multiple development environments (e.g., work and home computers). Use this skill when the user needs to sync code with GitHub, push changes before leaving, pull updates before starting work, set up batch sync for multiple projects, or configure project synchronization. Keywords that trigger this skill include "push", "pull", "sync", "下班" (leaving work), "上班" (starting work), "commit", "GitHub同步" (GitHub sync), "批量同步" (batch sync), "配置批量同步" (configure batch sync), "同步所有项目" (sync all projects).
 ---
 
 # Git Workflow Manager
@@ -142,23 +142,110 @@ This skill provides guided workflows for managing Git repositories across multip
 
 4. Confirm with user that setup is complete
 
-### Workflow 6: Batch Sync All Projects
+### Workflow 6: Smart Configuration Wizard (NEW! ⭐)
 
-**When to use**: User has multiple projects and wants to sync all of them at once
+**When to use**: First-time setup OR user wants to reconfigure batch sync
 
-**Triggers**: "同步所有项目", "批量同步", "sync all projects", "一键同步所有仓库"
+**Triggers**: "配置批量同步", "设置批量同步", "批量同步配置", "configure batch sync", "setup projects"
 
-**Important**: This workflow requires user to configure project paths in the batch sync script first.
+**What it does**:
+This is an intelligent interactive wizard that:
+- Automatically discovers all Git projects on the system
+- Checks remote repository status
+- Lets user select projects via numbers
+- Saves configuration for future use
 
 **Steps**:
 
-1. Check if batch sync script is configured
-   - Ask user for all project paths if not configured
-   - Help edit the script to add project paths
+1. Check if configuration already exists
+   - If yes: Show summary and ask if user wants to reconfigure
+   - If no: Start first-time setup wizard
 
-2. Execute batch sync script:
-   - **Windows**: Run `scripts/sync_all_projects.ps1`
-   - **Mac/Linux**: Run `scripts/sync_all_projects.sh`
+2. Ask user where to search for projects:
+   ```
+   [1] ~/work and ~/projects (recommended)
+   [2] Entire home directory ~/ (slower)
+   [3] Custom path
+   ```
+
+3. Automatically search and discover all Git projects
+   - Exclude common non-project paths (node_modules, etc.)
+   - Extract metadata: last commit time, uncommitted changes, remote status
+   - Categorize as: Active / Dormant / Inactive / Suspicious
+
+4. Display discovered projects with details:
+   ```
+   📁 Active Projects (< 1 month):
+     [1] ✓ project-a
+         └─ Path: ~/work/project-a
+         └─ Remote: ✓ github.com/user/project-a
+         └─ Last commit: 2 hours ago
+         └─ Status: ⚠️ Has uncommitted changes
+
+     [2] ✓ project-b
+         └─ Path: ~/work/project-b
+         └─ Remote: ✓ github.com/user/project-b
+         └─ Last commit: 1 day ago
+         └─ Status: Clean
+   ```
+
+5. Ask user to select projects:
+   ```
+   Options:
+   • Enter numbers: 1,2,3 (select multiple)
+   • Enter 'all': Select all projects
+   • Enter 'active': Select only active projects (recommended)
+   • Enter 'cancel': Cancel setup
+   ```
+
+6. Confirm selection and save configuration
+
+7. Offer to run initial sync immediately
+
+**Configuration file location**:
+- `~/.claude/skills/git-workflow/projects.json`
+- `~/.claude/skills/git-workflow/projects.list`
+
+**To run wizard manually**:
+```bash
+bash ~/.claude/skills/git-workflow/scripts/configure_wizard.sh
+```
+
+### Workflow 7: Batch Sync All Projects
+
+**When to use**: User has multiple projects and wants to sync all of them at once (AFTER configuration)
+
+**Triggers**: "同步所有项目", "批量同步", "sync all projects", "一键同步所有仓库"
+
+**Prerequisites**: Must run Workflow 6 (Configuration Wizard) first
+
+**Steps**:
+
+1. Check if configuration exists:
+   ```bash
+   # Check for config file
+   if [[ -f ~/.claude/skills/git-workflow/projects.list ]]; then
+       echo "Configuration found"
+   else
+       echo "No configuration. Please run setup wizard first."
+   fi
+   ```
+
+2. If NO configuration exists:
+   - Inform user that configuration is needed
+   - Guide them to run Workflow 6 (Configuration Wizard)
+   - Offer to run the wizard now: "Would you like me to help you configure batch sync now?"
+
+3. If configuration exists:
+   - Read configured projects from `projects.list`
+   - Execute batch sync script:
+     ```bash
+     bash ~/.claude/skills/git-workflow/scripts/sync_configured_projects.sh
+     ```
+
+4. Alternative manual methods:
+   - **Windows**: Run `scripts/sync_all_projects.ps1` (manual configuration)
+   - **Mac/Linux**: Run `scripts/sync_all_projects.sh` (manual configuration)
 
 3. The script will automatically:
    - Iterate through all configured projects

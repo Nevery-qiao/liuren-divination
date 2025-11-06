@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "configuredAt": "",
+  "lastSync": null,
+  "user": {
+    "githubUsername": "",
+    "gitName": "",
+    "gitEmail": "",
+    "authMethod": "",
+    "hasToken": false,
+    "hasSSH": false
+  },
+  "searchPaths": [],
+  "projects": [],
+  "settings": {
+    "autoCommitMessage": "Auto sync: {date} from {hostname}",
+    "skipNoChanges": true,
+    "showProgress": true,
+    "parallelSync": false
+  },
+  "stats": {
+    "totalSyncs": 0,
+    "successfulSyncs": 0,
+    "failedSyncs": 0,
+    "lastError": null
+  }
+}
