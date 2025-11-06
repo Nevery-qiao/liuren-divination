@@ -142,6 +142,37 @@ This skill provides guided workflows for managing Git repositories across multip
 
 4. Confirm with user that setup is complete
 
+### Workflow 6: Batch Sync All Projects
+
+**When to use**: User has multiple projects and wants to sync all of them at once
+
+**Triggers**: "同步所有项目", "批量同步", "sync all projects", "一键同步所有仓库"
+
+**Important**: This workflow requires user to configure project paths in the batch sync script first.
+
+**Steps**:
+
+1. Check if batch sync script is configured
+   - Ask user for all project paths if not configured
+   - Help edit the script to add project paths
+
+2. Execute batch sync script:
+   - **Windows**: Run `scripts/sync_all_projects.ps1`
+   - **Mac/Linux**: Run `scripts/sync_all_projects.sh`
+
+3. The script will automatically:
+   - Iterate through all configured projects
+   - Check each project for changes
+   - Commit and push changes if found
+   - Skip projects with no changes
+   - Report success/failure/skip counts
+
+4. Show summary to user
+
+**Preview mode**: User can run with `-DryRun` (PowerShell) to see what would be done without actual execution.
+
+**Note**: This is useful for end-of-day syncing when user has worked on multiple projects. Each project is synced to its own remote repository automatically.
+
 ## Best Practices
 
 When using this skill, always:
@@ -162,9 +193,31 @@ Reference `references/troubleshooting.md` for detailed solutions to:
 
 ## Scripts
 
-### scripts/git_sync.sh
+### scripts/git_sync.sh / git_sync.ps1
 
-Automated sync script that can be used for quick operations. Execute when user wants a fully automated sync without step-by-step confirmation.
+Single-project automated sync script. Execute when user wants a fully automated sync without step-by-step confirmation for the current project.
+
+### scripts/sync_all_projects.sh / sync_all_projects.ps1
+
+Multi-project batch sync script. Syncs all configured projects at once. User needs to edit the script to add their project paths before first use.
+
+**Configuration example (PowerShell)**:
+```powershell
+$Projects = @(
+    "$HOME\work\project-a",
+    "$HOME\work\project-b",
+    "$HOME\personal\my-app"
+)
+```
+
+**Configuration example (Bash)**:
+```bash
+PROJECTS=(
+    "$HOME/work/project-a"
+    "$HOME/work/project-b"
+    "$HOME/personal/my-app"
+)
+```
 
 ## Cross-Platform Notes
 

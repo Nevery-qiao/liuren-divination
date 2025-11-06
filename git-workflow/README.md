@@ -79,7 +79,9 @@ git-workflow/
 
 ## 自动化脚本使用
 
-### Bash (Mac/Linux)
+### 单项目同步
+
+**Bash (Mac/Linux)**
 
 ```bash
 # 基本用法
@@ -89,7 +91,7 @@ git-workflow/
 ./git-workflow/scripts/git_sync.sh "完成了新功能开发"
 ```
 
-### PowerShell (Windows)
+**PowerShell (Windows)**
 
 ```powershell
 # 基本用法
@@ -99,6 +101,59 @@ git-workflow/
 .\git-workflow\scripts\git_sync.ps1 -CommitMessage "完成了新功能开发"
 ```
 
+### 批量同步所有项目 ⭐ 新功能
+
+如果你有多个项目（如 project-a, project-b, project-c 等），可以一次性同步所有项目！
+
+**第一次使用前需要配置：**
+
+1. 编辑脚本文件，添加你的项目路径：
+   - Windows: 编辑 `scripts/sync_all_projects.ps1`
+   - Mac/Linux: 编辑 `scripts/sync_all_projects.sh`
+
+2. 找到项目路径配置部分，修改为你的实际路径：
+
+```powershell
+# Windows PowerShell 配置示例
+$Projects = @(
+    "$HOME\work\liuren-divination",
+    "$HOME\work\my-app",
+    "$HOME\personal\blog"
+)
+```
+
+```bash
+# Mac/Linux Bash 配置示例
+PROJECTS=(
+    "$HOME/work/liuren-divination"
+    "$HOME/work/my-app"
+    "$HOME/personal/blog"
+)
+```
+
+**使用方法：**
+
+**Windows:**
+```powershell
+# 一键同步所有项目
+.\git-workflow\scripts\sync_all_projects.ps1
+
+# 预览模式（不实际执行，只显示会做什么）
+.\git-workflow\scripts\sync_all_projects.ps1 -DryRun
+```
+
+**Mac/Linux:**
+```bash
+# 一键同步所有项目
+./git-workflow/scripts/sync_all_projects.sh
+```
+
+**功能特点：**
+- 自动遍历所有配置的项目
+- 只同步有改动的项目
+- 显示详细的同步进度
+- 最后显示成功/失败/跳过的统计
+
 ## 支持的工作流
 
 1. **Leaving Work** - 下班前保存并推送
@@ -106,6 +161,7 @@ git-workflow/
 3. **Quick Sync** - 快速双向同步
 4. **New Repository** - 创建并连接新仓库
 5. **Clone Repository** - 克隆现有仓库
+6. **Batch Sync All** - 批量同步所有项目 ⭐
 
 ## 贡献
 
