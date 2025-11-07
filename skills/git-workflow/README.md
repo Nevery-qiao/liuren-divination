@@ -26,20 +26,20 @@
 
 **Windows:**
 ```powershell
-# 克隆仓库
-git clone https://github.com/Nevery-qiao/git-workflow.git
+# 克隆整个 skills 集合
+git clone https://github.com/Nevery-qiao/claude-code-skills.git
 
-# 复制到个人 skills 目录
-cp -r git-workflow ~/.claude/skills/
+# 复制这个 skill 到个人目录
+cp -r claude-code-skills/skills/git-workflow ~/.claude/skills/
 ```
 
 **Mac/Linux:**
 ```bash
-# 克隆仓库
-git clone https://github.com/Nevery-qiao/git-workflow.git
+# 克隆整个 skills 集合
+git clone https://github.com/Nevery-qiao/claude-code-skills.git
 
-# 复制到个人 skills 目录
-cp -r git-workflow ~/.claude/skills/
+# 复制这个 skill 到个人目录
+cp -r claude-code-skills/skills/git-workflow ~/.claude/skills/
 ```
 
 ### 项目级使用
